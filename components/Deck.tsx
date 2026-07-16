@@ -37,30 +37,35 @@ export default function Deck({ deck, onReset }: Props) {
     URL.revokeObjectURL(url)
   }
 
+  const pct = Math.round((known.size / cards.length) * 100)
+
   return (
     <div className="space-y-6">
-      {/* progress */}
+      {/* progress ticks */}
       <div>
-        <div className="mb-2 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-          <span>{known.size} of {cards.length} marked known</span>
-          <span>{Math.round((known.size / cards.length) * 100)}%</span>
+        <div className="mb-2 flex items-center justify-between font-mono text-xs text-ink-soft">
+          <span>{known.size} / {cards.length} known</span>
+          <span>{pct}%</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-          <div
-            className="h-full rounded-full bg-emerald-500 transition-all duration-300"
-            style={{ width: `${(known.size / cards.length) * 100}%` }}
-          />
+        <div className="flex gap-1">
+          {cards.map((_, idx) => (
+            <span
+              key={idx}
+              className={`h-1.5 flex-1 rounded-full transition-colors ${
+                known.has(idx) ? 'bg-primary' : idx === i ? 'bg-accent' : 'bg-line'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
       <Flashcard card={cards[i]} index={i} total={cards.length} />
 
-      {/* controls */}
       <div className="flex items-center justify-between gap-3">
         <button
           onClick={() => go(-1)}
           disabled={i === 0}
-          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-sm border border-line bg-card text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-30"
           aria-label="Previous card"
         >
           <ChevronLeft size={20} />
@@ -68,37 +73,38 @@ export default function Deck({ deck, onReset }: Props) {
 
         <button
           onClick={toggleKnown}
-          className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-colors ${
+          className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-sm px-5 py-3.5 font-display text-[15px] font-semibold transition-colors ${
             known.has(i)
-              ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-              : 'border border-slate-200 text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-slate-800'
+              ? 'bg-primary text-paper'
+              : 'border border-line bg-card text-ink hover:border-ink'
           }`}
         >
-          <Check size={17} /> {known.has(i) ? 'Known' : 'Mark as known'}
+          <Check size={17} /> {known.has(i) ? 'Marked known' : 'Mark as known'}
         </button>
 
         <button
           onClick={() => go(1)}
           disabled={i === cards.length - 1}
-          className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-slate-200 text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-sm border border-line bg-card text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-30"
           aria-label="Next card"
         >
           <ChevronRight size={20} />
         </button>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-3 pt-2">
+      <div className="flex flex-wrap justify-center gap-3 pt-1">
         <button
           onClick={exportCsv}
-          className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="flex cursor-pointer items-center gap-2 font-mono text-xs uppercase tracking-wider text-ink-soft transition-colors hover:text-primary"
         >
-          <Download size={15} /> Export CSV
+          <Download size={14} /> export csv
         </button>
+        <span className="text-line">·</span>
         <button
           onClick={onReset}
-          className="flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="flex cursor-pointer items-center gap-2 font-mono text-xs uppercase tracking-wider text-ink-soft transition-colors hover:text-primary"
         >
-          <RotateCcw size={15} /> New deck
+          <RotateCcw size={14} /> new deck
         </button>
       </div>
     </div>

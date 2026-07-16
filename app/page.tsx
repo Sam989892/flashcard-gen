@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Sparkles, Loader2, GraduationCap } from 'lucide-react'
+import { Sparkles, Loader2, ArrowRight } from 'lucide-react'
 import Deck from '@/components/Deck'
 import type { Deck as DeckType } from '@/lib/schema'
 
@@ -33,43 +33,58 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-2xl px-5 py-12 sm:py-20">
-      <header className="mb-10 text-center">
-        <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-white">
-          <GraduationCap size={24} />
-        </span>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-          Flashcards, instantly
+    <main className="mx-auto w-full max-w-3xl px-6 py-14 sm:py-20">
+      {/* masthead */}
+      <header className="border-b-2 border-ink pb-6">
+        <div className="flex items-center justify-between text-xs font-medium uppercase tracking-[0.25em] text-ink-soft">
+          <span>Study Desk</span>
+          <span>No. 01</span>
+        </div>
+        <h1 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-tight text-ink sm:text-6xl">
+          Flashcards,
+          <br />
+          <span className="italic text-primary">instantly.</span>
         </h1>
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Paste your notes. Claude turns them into study cards you can flip, track and export.
+        <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink-soft">
+          Paste anything you&apos;re studying. It comes back as a stack of cards you can
+          flip, mark, and take with you.
         </p>
       </header>
 
       {deck ? (
-        <Deck deck={deck} onReset={() => { setDeck(null); setText('') }} />
+        <div className="mt-10">
+          <Deck deck={deck} onReset={() => { setDeck(null); setText('') }} />
+        </div>
       ) : (
-        <div className="space-y-4">
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Paste lecture notes, a textbook passage, or a Wikipedia article…"
-            rows={12}
-            className="w-full resize-y rounded-2xl border border-slate-200 bg-white p-5 text-[15px] leading-relaxed text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-indigo-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100"
-          />
+        <div className="mt-10 space-y-5">
+          <div className="relative">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste lecture notes, a textbook passage, a Wikipedia article…"
+              rows={11}
+              className="w-full resize-y rounded-sm border border-line bg-card p-6 text-[16px] leading-8 text-ink shadow-[4px_4px_0_0_var(--color-line)] outline-none transition-shadow placeholder:text-ink-soft/60 focus:shadow-[4px_4px_0_0_var(--color-accent)]"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(transparent, transparent 31px, var(--color-line) 31px, var(--color-line) 32px)',
+                backgroundAttachment: 'local',
+                lineHeight: '32px',
+              }}
+            />
+          </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm">
             <button
               onClick={() => setText(SAMPLE)}
-              className="cursor-pointer text-sm text-indigo-600 transition-colors hover:text-indigo-500 dark:text-indigo-400"
+              className="cursor-pointer font-medium text-primary underline decoration-accent decoration-2 underline-offset-4 transition-colors hover:text-primary-2"
             >
-              Try a sample
+              use a sample
             </button>
-            <span className="text-sm text-slate-400">{text.length} chars</span>
+            <span className="font-mono text-xs text-ink-soft">{text.length} chars</span>
           </div>
 
           {error && (
-            <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-400" role="alert">
+            <p className="rounded-sm border-l-4 border-primary bg-primary/8 px-4 py-3 text-sm text-primary-2" role="alert">
               {error}
             </p>
           )}
@@ -77,26 +92,30 @@ export default function Home() {
           <button
             onClick={generate}
             disabled={loading || text.trim().length < 100}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-4 font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="group flex w-full cursor-pointer items-center justify-between gap-2 rounded-sm bg-ink px-7 py-5 text-left font-display text-lg font-semibold text-paper transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? (
               <>
-                <Loader2 size={18} className="animate-spin" /> Building your deck…
+                <span>Building your deck…</span>
+                <Loader2 size={20} className="animate-spin" />
               </>
             ) : (
               <>
-                <Sparkles size={18} /> Generate flashcards
+                <span className="flex items-center gap-2">
+                  <Sparkles size={18} className="text-accent" /> Make my flashcards
+                </span>
+                <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
               </>
             )}
           </button>
-          <p className="text-center text-xs text-slate-400">
-            Needs at least 100 characters. Nothing is stored — cards live in your browser.
+          <p className="text-center text-xs text-ink-soft">
+            Needs at least 100 characters. Nothing is saved anywhere.
           </p>
         </div>
       )}
 
-      <footer className="mt-16 text-center text-xs text-slate-400">
-        Concept project by Sam Madni · Next.js + Claude API
+      <footer className="mt-20 border-t border-line pt-5 text-xs text-ink-soft">
+        A concept project by Sam Madni.
       </footer>
     </main>
   )

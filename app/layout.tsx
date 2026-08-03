@@ -15,7 +15,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Flashcards, instantly — AI study cards",
   description:
-    "Paste any notes and Claude turns them into flip-able study flashcards you can track and export. A concept project by Sam Madni.",
+    "Paste any notes and AI turns them into flip-able study flashcards you can track and export. A concept project by Sam Madni.",
 };
 
 export default function RootLayout({

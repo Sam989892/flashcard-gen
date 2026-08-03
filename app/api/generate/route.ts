@@ -1,7 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
-import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
+import OpenAI from 'openai'
 import { DeckSchema } from '@/lib/schema'
 import { SYSTEM_PROMPT } from '@/lib/prompt'
+import { llm, LLM_MODEL, hasLlmKey } from '@/lib/llm'
 
 export async function POST(req: Request) {
   let text: unknown
@@ -24,39 +24,45 @@ export async function POST(req: Request) {
     )
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!hasLlmKey()) {
     return Response.json(
-      { error: 'Server is missing an ANTHROPIC_API_KEY. Add one to .env.local.' },
+      { error: 'Server is missing an LLM_API_KEY. Add one to .env.local.' },
       { status: 500 },
     )
   }
 
   try {
-    const client = new Anthropic() // reads ANTHROPIC_API_KEY from the environment
-    const response = await client.messages.parse({
-      model: 'claude-opus-4-8',
-      max_tokens: 16000,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: text }],
-      output_config: { format: zodOutputFormat(DeckSchema) },
+    const completion = await llm().chat.completions.create({
+      model: LLM_MODEL,
+      max_tokens: 4000,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: text },
+      ],
     })
 
-    if (!response.parsed_output) {
+    const raw = completion.choices[0]?.message?.content ?? ''
+    let json: unknown
+    try {
+      json = JSON.parse(raw)
+    } catch {
       return Response.json({ error: 'Could not generate cards from that text.' }, { status: 502 })
     }
-    return Response.json(response.parsed_output)
-  } catch (error) {
-    if (error instanceof Anthropic.AuthenticationError) {
-      return Response.json(
-        { error: 'Server is missing a valid ANTHROPIC_API_KEY.' },
-        { status: 500 },
-      )
+    const parsed = DeckSchema.safeParse(json)
+    if (!parsed.success) {
+      return Response.json({ error: 'Could not generate cards from that text.' }, { status: 502 })
     }
-    if (error instanceof Anthropic.RateLimitError) {
+    return Response.json(parsed.data)
+  } catch (error) {
+    if (error instanceof OpenAI.AuthenticationError) {
+      return Response.json({ error: 'Server is missing a valid LLM_API_KEY.' }, { status: 500 })
+    }
+    if (error instanceof OpenAI.RateLimitError) {
       return Response.json({ error: 'Rate limited. Try again in a minute.' }, { status: 429 })
     }
-    if (error instanceof Anthropic.APIError) {
-      return Response.json({ error: `Claude API error (${error.status}).` }, { status: 502 })
+    if (error instanceof OpenAI.APIError) {
+      return Response.json({ error: `LLM API error (${error.status}).` }, { status: 502 })
     }
     return Response.json({ error: 'Something went wrong. Try again.' }, { status: 500 })
   }

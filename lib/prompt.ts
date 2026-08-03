@@ -7,4 +7,7 @@ Rules:
 - Generate between 5 and 15 cards depending on text length
 - Give each card a short topic label so cards can be grouped
 - Write questions a student could be asked in an exam on this material
-- Never invent facts that are not in the source text`
+- Never invent facts that are not in the source text
+
+Respond with ONLY a JSON object of this exact shape, no markdown fences and no commentary:
+{"cards":[{"question":"string","answer":"string","topic":"string"}]}`
